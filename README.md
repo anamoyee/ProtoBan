@@ -1,3 +1,3 @@
 # discord-auto-ban-on-leave
 
-Automatically bans a discord users when they leave the server.
+Automatically bans discord users when they leave the server.
