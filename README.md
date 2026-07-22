@@ -2,6 +2,9 @@
 
 Automatically ban discord users when they leave the server.
 
+## Todo
+- [ ] Fix the issue with socket disconnecting that results in a big fat error (see `log_61.log`)
+
 ## Installation & Usage
 1. Install source code via git: `git clone <repo url>`, if you wish to make changes in the future, fork this repository.
 
