@@ -1,6 +1,6 @@
 # ProtoBan
 
-Automatically bans discord users when they leave the server.
+Automatically ban discord users when they leave the server.
 
 ## Installation & Usage
 1. Install source code via git: `git clone <repo url>`, if you wish to make changes in the future, fork this repository.
