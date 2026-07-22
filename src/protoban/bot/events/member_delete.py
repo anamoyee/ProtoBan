@@ -86,7 +86,7 @@ async def on_member_delete(ev: hikari.MemberDeleteEvent) -> None:
 
 		logger.debug("Found a convincing ban/kick audit for them to be spared.")  # i meaaan.. if it's ban, they're kicked anyway 💀
 
-		logger.info("User left, but was banned/kicked by an administrator manually, not auto-banning them.")
+		logger.info("User %d left, but was banned/kicked by an administrator manually, not auto-banning them.", ev.user_id)
 		return  # user was banned/kicked by an administrator manually, do not auto-ban them then.
 
 	logger.debug("No ban/kick audit log entry found for user %d, proceeding to auto-banning them.", ev.user_id)
