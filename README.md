@@ -19,8 +19,12 @@ Automatically bans discord users when they leave the server.
 - [ ] Add AGPL License
 - [ ] remove this todo from
 
-## Usage
-Install `uv` python package manager (through your distro's package manager or `pipx` or [Astral's (uv's authors) script](https://docs.astral.sh/uv/getting-started/installation/), (descending order of recommendation)), then:
+## Installation & Usage
+1. Install source code via git: `git clone <repo url>`, if you wish to make changes in the future, fork this repository.
+
+2. Install `uv` python package manager (through your distro's package manager or `pipx` or [Astral's (uv's authors) script](https://docs.astral.sh/uv/getting-started/installation/), (descending order of recommendation)), then:
+
+3. Use the `run.sh` script.
 
 > `./run.sh`
 
