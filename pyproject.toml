@@ -1,18 +1,34 @@
 [project]
-name = 'discord-auto-ban-on-leave'
-dynamic = ['version']
-description = 'Automatically bans a discord users when they leave the server.'
-readme = "README.md"
-requires-python = ">=3.14"
-dependencies = []
+name            = 'protoban'
+dynamic         = ['version']
+description     = 'Automatically bans a discord users when they leave the server.'
+readme          = "README.md"
+requires-python = "==3.14.6"
 
-# [project.scripts]
-# discord_auto_ban_on_leave = "discord_auto_ban_on_leave.__main__:main"
+dependencies = [ #
+	"arguably==1.3.0",
+	"asyncstdlib==3.14.0",
+	"hikari[speedups]==2.5.0",
+	"hikari-arc==2.3.0",
+	"hikari-miru==4.2.0",
+	"nya-codeblock==0.1.1",
+	"nya-scope==0.3.1",
+	"rich==15.0.0",
+	"nya-fmt==0.1.1",
+]
+
+[project.scripts]
+protoban = "protoban.__main__:main"
 
 [build-system]
-requires = ["hatchling"]
+requires      = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "src/discord_auto_ban_on_leave/_version.py"
+path    = "src/protoban/_version.py"
 pattern = '__version__(?:: str)? *= *\"(?P<version>[^\"]+)\"'
+
+[dependency-groups]
+dev = [ #
+	"ty==0.0.61",
+]
