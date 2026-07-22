@@ -2,23 +2,6 @@
 
 Automatically bans discord users when they leave the server.
 
-### todo
-- [x] ACTUALLY TEST IF IT WORKS: make it on not ban on kick
-- [x] testing
-  - [x] test /configure command
-  - [x] test if kick doesnt ban
-  - [x] test if error handler works (spread some 1/0 around the place)
-    - [x] in commands
-    - [x] in events
-  - [x] make sure logging to Discord works (bc niver'll eat me if not)
-    - [x] remove the wanky logging shit and simply make a `discord_log(guild_id, hikari.Embed(...))`
-  - [x] setup rich.logging
-- [x] /admin stats
-  - [x] (the command impl itself, and its embed)
-  - [x] count bans in a `Data__` file (user IDs of targets)
-- [ ] Add AGPL License
-- [ ] remove this todo from
-
 ## Installation & Usage
 1. Install source code via git: `git clone <repo url>`, if you wish to make changes in the future, fork this repository.
 
