@@ -221,6 +221,28 @@ class Data__(Scope):
 			return dct
 
 		@classmethod
+		def read_banned_user(cls, *, guild_id: hikari.Snowflake, user_id: hikari.Snowflake) -> tuple[str, str] | None:
+			"""Read a banned user from the file, or return None if the file does not exist.
+
+			Args:
+				guild_id: The ID of the guild for which to read the banned user.
+				user_id: The ID of the user to read.
+
+			Returns:
+				tuple[str, str] | None: The username and reason for the banned user, or None if the user is not banned.
+			"""
+			cls.BANNED_USERS_DIR.mkdir(parents=True, exist_ok=True)
+
+			directory = cls.BANNED_USERS_DIR / f"{guild_id}"
+			file = directory / f"{user_id}"
+
+			if not file.is_file():
+				return None
+
+			username, reason = file.read_text(encoding="utf-8").split("\n", maxsplit=1)
+			return username, reason
+
+		@classmethod
 		def add_banned_user(cls, *, guild_id: hikari.Snowflake, user_id: hikari.Snowflake, username: str, reason: str) -> None:
 			"""Add a banned user by creating a file with the user ID as the name.
 

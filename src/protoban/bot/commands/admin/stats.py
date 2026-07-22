@@ -50,7 +50,7 @@ async def subcmd__admin__stats(ctx: arc.GatewayContext):
 		),
 		hikari.impl.ContainerComponentBuilder(
 			components=[
-				hikari.impl.TextDisplayComponentBuilder(content=f"Total banned users: `{len(banned_users)}`"),
+				hikari.impl.TextDisplayComponentBuilder(content=f"Total auto-banned users: `{len(banned_users)}`"),
 			]
 		),
 		hikari.impl.FileComponentBuilder(file=bytes_),

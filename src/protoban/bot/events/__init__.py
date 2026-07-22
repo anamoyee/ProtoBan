@@ -1,4 +1,5 @@
 from ...get_logger import get_logger
+from . import ban_delete as ban_delete
 from . import member_delete as member_delete
 from . import started as started
 
