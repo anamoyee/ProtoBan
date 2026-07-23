@@ -4,7 +4,6 @@ Automatically ban discord users when they leave the server.
 
 ## Todo
 - [ ] Fix the issue with socket disconnecting after you leave the bot running for a while, that results in a big fat error (see `log_61.log`)
-- [ ] Make data root on plstformdirs, as this is a path outside the git repo which will let it be tracked on a separate repository as a backup, without having to make it a submodule
 
 ## Installation & Usage
 1. Install source code via git: `git clone <repo url>`, if you wish to make changes in the future, fork this repository.
