@@ -7,5 +7,9 @@
 			"path": "./ProtoBanDB",
 		},
 	],
-	"settings": {},
+	"settings": {
+		"files.exclude": {
+			"ProtoBanDB": true, // do not double the 2nd workspace folder in the sidebar's area of the first folder
+		},
+	},
 }
