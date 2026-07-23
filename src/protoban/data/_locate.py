@@ -226,7 +226,7 @@ class Data__(Scope):
 				RuntimeError: If a malformed user ID is found in the file name of the banned users directory. This indicates a bug with the code
 			"""
 			directory = cls.BANNED_USERS_DIR() / f"{guild_id}"
-
+			directory.mkdir(exist_ok=True)
 			dct: dict[hikari.Snowflake, tuple[str, str]] = {}
 
 			for file in sorted(directory.iterdir(), key=lambda f: f.stat().st_mtime):
@@ -258,6 +258,7 @@ class Data__(Scope):
 				tuple[str, str] | None: The username and reason for the banned user, or None if the user is not banned.
 			"""
 			directory = cls.BANNED_USERS_DIR() / f"{guild_id}"
+			directory.mkdir(exist_ok=True)
 			file = directory / f"{user_id}"
 
 			if not file.is_file():
