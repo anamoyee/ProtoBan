@@ -5,6 +5,8 @@ import hikari
 import platformdirs
 from nya_scope import Scope
 
+from ..environment import get_environment
+
 
 class Data__(Scope):
 	"""Theese paths do not necessarily point to files that exist, except for assets. Ensure existance by creating if missing."""
@@ -16,7 +18,7 @@ class Data__(Scope):
 			raise AssertionError(msg)  # not using assert because i want this to keep being raised even in -OO
 
 		# path = p.Path(__file__).parent.resolve()
-		path = p.Path(platformdirs.user_data_dir(__package__.split(".", maxsplit=1)[0], appauthor=False, roaming=False))
+		path = p.Path(platformdirs.user_data_dir(__package__.split(".", maxsplit=1)[0], appauthor=False, roaming=False)) / get_environment().value
 		path.mkdir(parents=True, exist_ok=True)
 		return path
 
