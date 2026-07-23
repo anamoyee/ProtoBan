@@ -9,7 +9,7 @@ async def archook__only_administrators(ctx: arc.GatewayContext) -> arc.HookResul
 		return arc.HookResult(abort=True)
 
 	if not (ctx.member.permissions & hikari.Permissions.ADMINISTRATOR):
-		await ctx.respond(hikari.File(Data__.Assets__.MEGU_BUTTON), flags=hikari.MessageFlag.EPHEMERAL)
+		await ctx.respond(hikari.File(Data__.Assets__.MEGU_BUTTON()), flags=hikari.MessageFlag.EPHEMERAL)
 		return arc.HookResult(abort=True)
 
 	return arc.HookResult()

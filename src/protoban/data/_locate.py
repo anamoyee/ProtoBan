@@ -2,22 +2,43 @@ import itertools as it
 import pathlib as p
 
 import hikari
+import platformdirs
 from nya_scope import Scope
 
 
 class Data__(Scope):
 	"""Theese paths do not necessarily point to files that exist, except for assets. Ensure existance by creating if missing."""
 
-	ROOT = p.Path(__file__).parent.resolve()
+	@staticmethod
+	def ROOT() -> p.Path:
+		if __package__ is None:
+			msg = "__package__ is None, expected this app to be packaged, do not run the app as script."
+			raise AssertionError(msg)  # not using assert because i want this to keep being raised even in -OO
+
+		# path = p.Path(__file__).parent.resolve()
+		path = p.Path(platformdirs.user_data_dir(__package__.split(".", maxsplit=1)[0], appauthor=False, roaming=False))
+		path.mkdir(parents=True, exist_ok=True)
+		return path
 
 	class Assets__(Scope):
-		ROOT = p.Path(__file__).parent.resolve() / "assets"  # sadly, Data__.ROOT  is unaccessible, so recreating that path... eh
-
 		"""Assets that are bundled with the bot (not .gitignore)."""
-		MEGU_BUTTON = ROOT / "megu_button.png"
+
+		@staticmethod
+		def ROOT() -> p.Path:
+			return p.Path(__file__).parent.resolve() / "assets"
+			# asserts are free of the data platformdirs/gitdir schenanigans, always in the gitdir.
+
+		@staticmethod
+		def MEGU_BUTTON() -> p.Path:
+			return Data__.Assets__.ROOT() / "megu_button.png"
 
 	if True:  # ban reason
-		BAN_REASON_DIR = ROOT / "ban_reason"
+
+		@staticmethod
+		def BAN_REASON_DIR() -> p.Path:
+			path = Data__.ROOT() / "ban_reason"
+			path.mkdir(exist_ok=True)
+			return path
 
 		@classmethod
 		def read_ban_reason(cls, guild_id: hikari.Snowflake) -> str:
@@ -29,9 +50,7 @@ class Data__(Scope):
 			Returns:
 				str: The ban reason read from the file, or a default reason if the file does not exist.
 			"""
-			cls.BAN_REASON_DIR.mkdir(parents=True, exist_ok=True)
-
-			file = cls.BAN_REASON_DIR / f"{guild_id}"
+			file = cls.BAN_REASON_DIR() / f"{guild_id}"
 
 			if file.exists():
 				return file.read_text(encoding="utf-8")
@@ -49,9 +68,7 @@ class Data__(Scope):
 			Returns:
 				int: The number of characters written to the file.
 			"""
-			cls.BAN_REASON_DIR.mkdir(parents=True, exist_ok=True)
-
-			file = cls.BAN_REASON_DIR / f"{guild_id}"
+			file = cls.BAN_REASON_DIR() / f"{guild_id}"
 
 			return file.write_text(new_reason, encoding="utf-8")
 
@@ -65,9 +82,7 @@ class Data__(Scope):
 			Raises:
 				FileNotFoundError: If the file does not exist.
 			"""
-			cls.BAN_REASON_DIR.mkdir(parents=True, exist_ok=True)
-
-			file = cls.BAN_REASON_DIR / f"{guild_id}"
+			file = cls.BAN_REASON_DIR() / f"{guild_id}"
 
 			if not file.exists():
 				msg = f"Cannot unset ban reason for guild {guild_id}, file does not exist: {file}"
@@ -76,11 +91,18 @@ class Data__(Scope):
 			file.unlink()
 
 	if True:  # file logs
-		LOG_CURRENT: p.Path = ROOT / "logs/current.log"
-		LOG_ARCHIVE_DIR: p.Path = ROOT / "logs/archive"
 
-		LOG_CURRENT.parent.mkdir(parents=True, exist_ok=True)
-		LOG_ARCHIVE_DIR.parent.mkdir(parents=True, exist_ok=True)
+		@staticmethod
+		def LOG_CURRENT() -> p.Path:
+			path = Data__.ROOT() / "logs/current.log"
+			path.parent.mkdir(parents=True, exist_ok=True)
+			return path
+
+		@staticmethod
+		def LOG_ARCHIVE_DIR() -> p.Path:
+			path = Data__.ROOT() / "logs/archive"
+			path.mkdir(parents=True, exist_ok=True)
+			return path
 
 		@classmethod
 		def rotate_current_log(cls) -> p.Path:
@@ -95,7 +117,7 @@ class Data__(Scope):
 
 			def find_next_available_archive_logs_path(prefix: str = "log_") -> p.Path:
 				for i in it.count(1):
-					new_name = cls.LOG_ARCHIVE_DIR / f"{prefix}{i}.log"
+					new_name = cls.LOG_ARCHIVE_DIR() / f"{prefix}{i}.log"
 					if not new_name.exists():
 						new_name.parent.mkdir(parents=True, exist_ok=True)
 						return new_name
@@ -104,16 +126,21 @@ class Data__(Scope):
 				msg_0 = "Unreachable: itertools.count() should never stop yielding and only way to exit the loop is to return."
 				raise RuntimeError(msg_0)
 
-			if not cls.LOG_CURRENT.exists():
-				msg_1 = f"Current log file does not exist: {cls.LOG_CURRENT}"
+			if not cls.LOG_CURRENT().exists():
+				msg_1 = f"Current log file does not exist: {cls.LOG_CURRENT()}"
 				raise FileNotFoundError(msg_1)
 
 			new_path = find_next_available_archive_logs_path()
-			cls.LOG_CURRENT.rename(new_path)
-			return new_path.relative_to(cls.ROOT)
+			cls.LOG_CURRENT().rename(new_path)
+			return new_path.relative_to(cls.ROOT())
 
 	if True:  # discord logs
-		DISCORD_LOGS_CHANNEL_ID: p.Path = ROOT / "logs_channel"
+
+		@staticmethod
+		def DISCORD_LOGS_CHANNEL_DIR() -> p.Path:
+			path = Data__.ROOT() / "logs_channel"
+			path.mkdir(parents=True, exist_ok=True)
+			return path
 
 		@classmethod
 		def read_logs_channel(cls, guild_id: hikari.Snowflake) -> hikari.Snowflake | None:
@@ -128,9 +155,7 @@ class Data__(Scope):
 			Raises:
 				ValueError: If the logs channel ID in the file is malformed (not an int-parsable string). This indicates a bug with the code, as this should never be possible.
 			"""
-			cls.DISCORD_LOGS_CHANNEL_ID.mkdir(parents=True, exist_ok=True)
-
-			file = cls.DISCORD_LOGS_CHANNEL_ID / f"{guild_id}"
+			file = cls.DISCORD_LOGS_CHANNEL_DIR() / f"{guild_id}"
 
 			if not file.exists():
 				return None
@@ -154,9 +179,7 @@ class Data__(Scope):
 			Returns:
 				int: The number of characters written to the file.
 			"""
-			cls.DISCORD_LOGS_CHANNEL_ID.mkdir(parents=True, exist_ok=True)
-
-			file = cls.DISCORD_LOGS_CHANNEL_ID / f"{guild_id}"
+			file = cls.DISCORD_LOGS_CHANNEL_DIR() / f"{guild_id}"
 
 			return file.write_text(str(new_channel_id), encoding="utf-8")
 
@@ -170,9 +193,7 @@ class Data__(Scope):
 			Raises:
 				FileNotFoundError: If the file does not exist.
 			"""
-			cls.DISCORD_LOGS_CHANNEL_ID.mkdir(parents=True, exist_ok=True)
-
-			file = cls.DISCORD_LOGS_CHANNEL_ID / f"{guild_id}"
+			file = cls.DISCORD_LOGS_CHANNEL_DIR() / f"{guild_id}"
 
 			if not file.exists():
 				msg = f"Cannot unset logs channel ID for guild {guild_id}, file does not exist: {file}"
@@ -181,7 +202,12 @@ class Data__(Scope):
 			file.unlink()
 
 	if True:  # banned_users
-		BANNED_USERS_DIR = ROOT / "banned_users"
+
+		@staticmethod
+		def BANNED_USERS_DIR() -> p.Path:
+			path = Data__.ROOT() / "banned_users"
+			path.mkdir(parents=True, exist_ok=True)
+			return path
 
 		@classmethod
 		def read_banned_users(cls, guild_id: hikari.Snowflake) -> dict[hikari.Snowflake, tuple[str, str]]:
@@ -197,9 +223,7 @@ class Data__(Scope):
 				RuntimeError: If a non-file is found in the banned users directory. This indicates a bug with the code, as this should never be possible.
 				RuntimeError: If a malformed user ID is found in the file name of the banned users directory. This indicates a bug with the code
 			"""
-			cls.BANNED_USERS_DIR.mkdir(parents=True, exist_ok=True)
-
-			directory = cls.BANNED_USERS_DIR / f"{guild_id}"
+			directory = cls.BANNED_USERS_DIR() / f"{guild_id}"
 
 			dct: dict[hikari.Snowflake, tuple[str, str]] = {}
 
@@ -231,9 +255,7 @@ class Data__(Scope):
 			Returns:
 				tuple[str, str] | None: The username and reason for the banned user, or None if the user is not banned.
 			"""
-			cls.BANNED_USERS_DIR.mkdir(parents=True, exist_ok=True)
-
-			directory = cls.BANNED_USERS_DIR / f"{guild_id}"
+			directory = cls.BANNED_USERS_DIR() / f"{guild_id}"
 			file = directory / f"{user_id}"
 
 			if not file.is_file():
@@ -252,10 +274,8 @@ class Data__(Scope):
 				username: The username of the user to add as banned.
 				reason: The reason for banning the user.
 			"""
-			cls.BANNED_USERS_DIR.mkdir(parents=True, exist_ok=True)
-
-			directory = cls.BANNED_USERS_DIR / f"{guild_id}"
-			directory.mkdir(parents=True, exist_ok=True)
+			directory = cls.BANNED_USERS_DIR() / f"{guild_id}"
+			directory.mkdir(exist_ok=True)
 
 			file = directory / f"{user_id}"
 
@@ -270,11 +290,19 @@ class Data__(Scope):
 				guild_id: The ID of the guild for which to remove the banned user.
 				user_id: The ID of the user to remove from banned.
 			"""
-			cls.BANNED_USERS_DIR.mkdir(parents=True, exist_ok=True)
-
-			directory = cls.BANNED_USERS_DIR / f"{guild_id}"
-			directory.mkdir(parents=True, exist_ok=True)
+			directory = cls.BANNED_USERS_DIR() / f"{guild_id}"
+			directory.mkdir(exist_ok=True)
 
 			file = directory / f"{user_id}"
 
 			file.unlink(missing_ok=True)
+
+
+(Data__.ROOT() / ".gitignore").write_text(
+	"""
+*
+!*.py
+!.gitignore
+!assets/
+"""[1:]
+)

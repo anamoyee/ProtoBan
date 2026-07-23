@@ -294,8 +294,8 @@ select = [
 	"PD",
 
 	# pep8-naming
-	"N804", # method first argument should be `self`
-	"N805", # classmethod first argument should be `cls`
+	# "N804", # classmethod first argument should be `cls`
+	"N805", # method first argument should be `self`
 	"N811", # constant imported as non-constant-looking name
 	"N818", # 'Error' suffix on exception typedefs
 

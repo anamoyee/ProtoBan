@@ -87,7 +87,7 @@ def setup_logging_to_stdout_rich() -> None:
 def setup_logging_to_file() -> None:
 	root_logger = logging.getLogger()
 
-	file_handler = logging.FileHandler(Data__.LOG_CURRENT, mode="a", encoding="utf-8")
+	file_handler = logging.FileHandler(Data__.LOG_CURRENT(), mode="a", encoding="utf-8")
 
 	file_handler.setFormatter(
 		formatter := logging.Formatter(
@@ -140,8 +140,10 @@ def __root__(
 	hikari.internal.ux.print_banner("hikari", allow_color=True, force_color=False)
 	logger = get_logger(__name__)
 
+	logger.info("Data__.ROOT() path locked in as %s", Data__.ROOT())
+
 	if True:  # "pre-starting event"
-		if Data__.LOG_CURRENT.exists():
+		if Data__.LOG_CURRENT().exists():
 			logger.warning("Unrotated current log file exists (probably from a previous run that might have exited unexpectedly). Rotating it now...")
 			new_path = Data__.rotate_current_log()
 			logger.info("Rotated current log file to: %s", new_path)
@@ -157,10 +159,10 @@ def __root__(
 		raise
 
 	if True:  # "post-stopped event"
-		if Data__.LOG_CURRENT.exists():
+		if Data__.LOG_CURRENT().exists():
 			new_path = Data__.rotate_current_log()
 			logger.info("Rotated current log file to: %s", new_path)
-			Data__.LOG_CURRENT.unlink(missing_ok=True)
+			Data__.LOG_CURRENT().unlink(missing_ok=True)
 		else:
 			logger.warning("Current log file does not exist...? Cannot rotate a missing file.")
 
