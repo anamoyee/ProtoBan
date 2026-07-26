@@ -28,7 +28,7 @@ exclude = [ #
 	"site-packages",
 ]
 
-line-length  = 150
+line-length  = 157
 indent-width = 4
 
 target-version = "py314"
