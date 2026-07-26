@@ -2,6 +2,7 @@ import os
 
 import arc
 import hikari
+import miru
 from hikari import GatewayBot, Intents
 
 from ..environment import testmode
@@ -23,3 +24,5 @@ ACL = arc.GatewayClient(
 		else hikari.UNDEFINED
 	),
 )
+
+MCL = miru.Client.from_arc(ACL)
