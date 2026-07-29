@@ -1,5 +1,3 @@
-from urllib.parse import quote
-
 import arc
 import hikari
 from nya_codeblock import codeblock
@@ -27,15 +25,6 @@ async def subcmd_admin__ban_reason__set(
 	if ctx.guild_id is None:
 		await ctx.respond(
 			f"{S.EMOJI_ERR} This command can only be used in a guild.",
-			flags=hikari.MessageFlag.EPHEMERAL,
-		)
-		return
-
-	new_reason_urlencoded = quote(new_reason, safe="")
-	if len(new_reason_urlencoded) > 512:
-		# discord's limit; see https://docs.discord.com/developers/resources/audit-log#:~:text=Apps%20can%20specify,with%20the%20API.
-		await ctx.respond(
-			f"{S.EMOJI_ERR} Reason is too long after urlencoding (len=`{len(new_reason_urlencoded)}`), this is a discord limitation and not an arbitrary limitation of the bot.",
 			flags=hikari.MessageFlag.EPHEMERAL,
 		)
 		return

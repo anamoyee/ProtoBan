@@ -1,5 +1,6 @@
 from ....get_logger import get_logger
 from . import ban_reason as ban_reason
+from . import dev as dev
 from . import logs_channel as logs_channel
 from . import mass_ban as mass_ban
 from . import stats as stats
