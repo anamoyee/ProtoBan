@@ -184,7 +184,7 @@ class CommitMassBanView(
 			)
 		)
 
-		self.clear_items()  # so later the view's on_timeout doesnt add the components back to the message as part of the vmix.TimeoutDisableButtons
+		self.clear_items()  # so later the view's on_timeout doesnt add the components back to the message as part of the vmix.TimeoutDisableItems
 		await ctx.edit_response(
 			embeds=content_to_edit_embeds(final_content),
 			attachment=attachment,
