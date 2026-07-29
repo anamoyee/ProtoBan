@@ -170,7 +170,7 @@ class CommitMassBanView(
 			except Exception as e:
 				failed_bans[ban] = e
 
-		final_content = f"{S.EMOJI_OK if not failed_bans else S.EMOJI_WARN} Banning completed{" with failures" if failed_bans else ""}. `{ii}`/`{ii}`."
+		final_content = f"{S.EMOJI_OK if not failed_bans else S.EMOJI_WARN} Banning completed{" with failures" if failed_bans else ""}. `{ii}`/`{ii}`"
 
 		if failed_bans:
 			final_content += make_failed_bans_str()
