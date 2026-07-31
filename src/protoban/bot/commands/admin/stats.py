@@ -26,38 +26,33 @@ async def subcmd__admin__stats(ctx: arc.GatewayContext):
 		)
 		return
 
+	await ctx.defer(hikari.MessageFlag.EPHEMERAL)
+
 	banned_users: dict[hikari.Snowflake, tuple[str, str]] = Data__.read_banned_users(ctx.guild_id)
 
-	attachment_content = json.dumps(
-		[
-			EntryDict(
-				user_id=str(user_id),
-				username=username,
-				reason=reason,
-			)
-			for user_id, (username, reason) in banned_users.items()
-		],
-		indent=4,
+	bytes_ = hikari.Bytes(
+		json.dumps(
+			[
+				EntryDict(
+					user_id=str(user_id),
+					username=username,
+					reason=reason,
+				)
+				for user_id, (username, reason) in banned_users.items()
+			],
+			indent=4,
+		).encode("utf-8"),
+		f"ban_statistics_{dt.datetime.now(tz=S.TZ):%Y-%m-%d_%H-%M-%S}.json",
 	)
 
-	bytes_ = hikari.Bytes(attachment_content.encode("utf-8"), f"ban_statistics_{dt.datetime.now(tz=S.TZ):%Y-%m-%d_%H-%M-%S}.json")
-
-	components = [
-		hikari.impl.ContainerComponentBuilder(
-			components=[
-				hikari.impl.TextDisplayComponentBuilder(content="# 🔨 Ban Statistics"),
-			]
-		),
-		hikari.impl.ContainerComponentBuilder(
-			components=[
-				hikari.impl.TextDisplayComponentBuilder(content=f"Total auto-banned users: `{len(banned_users)}`"),
-			]
-		),
-		hikari.impl.FileComponentBuilder(file=bytes_),
-	]
-
 	await ctx.respond(
-		components=components,
-		# attachment=bytes_,
-		flags=hikari.MessageFlag.EPHEMERAL | hikari.MessageFlag.IS_COMPONENTS_V2,
+		embed=hikari.Embed(
+			title="ProtoBan Stats",
+			description=f"""
+Total ProtoBan auto-bans: `{len(banned_users)}`
+Total bans on the server: `{len(await ctx.client.app.rest.fetch_bans(ctx.guild_id))}`
+"""[1:-1],
+		),
+		attachment=bytes_,
+		flags=hikari.MessageFlag.EPHEMERAL,
 	)
