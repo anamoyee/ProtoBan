@@ -10,6 +10,7 @@ import aiohttp
 import arc
 import hikari
 import miru
+from aiolimiter import AsyncLimiter
 from nya_codeblock import codeblock, codeblocks
 from nya_extract_error import extract_error
 
@@ -134,8 +135,8 @@ class CommitMassBanView(
 
 		failed_bans: dict[_PartialBan, BaseException] = {}
 
-		def make_failed_bans_str() -> str:
-			header_str = f" (`{len(failed_bans)}` failed)"
+		def make_failed_bans_codeblocks() -> str:
+			header_str = "\n"
 
 			return header_str + codeblocks(
 				*(
@@ -145,23 +146,41 @@ class CommitMassBanView(
 				max_length=2000 - (7 * len(failed_bans)) - len(header_str),
 			)
 
-		def content_to_edit_embeds(content: str) -> tuple[hikari.Embed, ...]:
-			previous_embeds = ctx.message.embeds
-
-			assert len(previous_embeds) <= 9  # Discord allows a maximum of 10 embeds per message
+		def content_to_edit_embeds(
+			content: str,
+			*,
+			in_progress: bool = False,
+		) -> tuple[hikari.Embed, ...]:
+			warning_embed_tuple_or_empty_tuple = (
+				(
+					hikari.Embed(
+						title="‼️ High volume of bans requested",
+						description="If the progress stops updating in the pending stage, approximately 15 minutes after the start of interation, it is likely that due to Discord's limitation of finite lifespan of a discord slashcommand interaction it has expired, and the bot cannot issue further edits to the message.\n\nIn this case the bot will try to silently finish the banning process, but its further failures and the finished status cannot be added (by editing) to the interaction message.\n\nWhile new messages can be created in the same channel, ephemeral ('Only you can see this') type of messages cannot, therefore i did not take this route of just spawning a new message.\n\n**If you experience this issue, try splitting your data in two or three smaller chunks.**",
+						color=0xFF0000,
+					),
+				)
+				if len(self.bans) >= 300
+				else ()
+			)
 
 			embed = hikari.Embed(
 				title="Mass Ban Results",
-				color=0x00FF00 if not failed_bans else 0xFFFF00,
+				color=0x0000FF if in_progress else (0x00FF00 if not failed_bans else 0xFFFF00),
 				description=content[:4096],  # Discord allows a maximum of 4096 characters in an embed description
 			)
 
-			return (*previous_embeds, embed)
+			final_embeds = (*ctx.message.embeds, *warning_embed_tuple_or_empty_tuple, embed)
 
-		for i, ban in enumerate(self.bans):
+			assert len(final_embeds) <= 10  # Discord allows a maximum of 10 embeds per message
+			return final_embeds
+
+		# try to avoid hitting discord's limits for 'BadRequestError: Bad Request 400: (30035) 'Max number of bans for non-guild members have been exceeded. Try again later' for https://discord.com/api/v10/guilds/.../bans/...'
+		limiter = AsyncLimiter(1, 1)
+		for i, ban in enumerate(self.bans, start=1):
 			logger.debug("%0*d/%d Mass-banning user %r", len(str(len(self.bans))), i, len(self.bans), ban.user_id)
 
 			try:
+				await limiter.acquire()
 				await ctx.client.app.rest.ban_user(
 					ctx.guild_id,
 					ban.user_id,
@@ -170,26 +189,55 @@ class CommitMassBanView(
 			except Exception as e:
 				failed_bans[ban] = e
 
-		final_content = f"{S.EMOJI_OK if not failed_bans else S.EMOJI_WARN} Banning completed{" with failures" if failed_bans else ""}. `{ii}`/`{ii}`"
+			UPDATE_EVERY_N_BANS = 25
+			if (i == 1 or i % UPDATE_EVERY_N_BANS == 0) and i != ii:  # update progress every 25 bans
+				in_progress_content = f"""
+⏳ Banning in progress {" with failures" if failed_bans else ""}... `{i:0{len(str(ii))}d}/{ii}` done{f" (of which `{len(failed_bans)}` failed)" if failed_bans else ""}.
+-# with a rate limiter of `{limiter.max_rate / limiter.time_period:g}` ban per second
+-# updates to this message issued every about `{UPDATE_EVERY_N_BANS}` bans
+"""[1:-1]
+
+				if failed_bans:
+					in_progress_content += make_failed_bans_codeblocks()
+
+				try:
+					await ctx.edit_response(
+						embeds=content_to_edit_embeds(in_progress_content, in_progress=True),
+					)
+				except hikari.UnauthorizedError:
+					logger.warning(
+						"Received hikari.UnauthorizedError while trying to update status for mass ban progress for guild_id=%r, did the interaction expire? Continuing ...",
+						ctx.guild_id,
+					)
+
+		finished_content = f"""
+{S.EMOJI_OK if not failed_bans else S.EMOJI_WARN} Banning finished{" with failures" if failed_bans else ""}. `{ii}` done{f" (of which `{len(failed_bans)}` failed)" if failed_bans else ""}.
+"""[1:-1]
 
 		if failed_bans:
-			final_content += make_failed_bans_str()
+			finished_content += make_failed_bans_codeblocks()
 
 		attachment = (
 			hikari.UNDEFINED
-			if len(final_content) <= 4096
+			if len(finished_content) <= 4096
 			else hikari.Bytes(
-				final_content.encode("utf-8"),
+				finished_content.encode("utf-8"),
 				"progress_log.txt",
 			)
 		)
 
 		self.clear_items()  # so later the view's on_timeout doesnt add the components back to the message as part of the vmix.TimeoutDisableItems
-		await ctx.edit_response(
-			embeds=content_to_edit_embeds(final_content),
-			attachment=attachment,
-			components=[],
-		)
+		try:
+			await ctx.edit_response(
+				embeds=content_to_edit_embeds(finished_content),
+				attachment=attachment,
+				components=[],
+			)
+		except hikari.UnauthorizedError:
+			logger.warning(
+				"Received hikari.UnauthorizedError while trying to update status for mass ban finished for guild_id=%r, did the interaction expire? Continuing ...",
+				ctx.guild_id,
+			)
 
 	@miru.button(label="Commit", style=hikari.ButtonStyle.DANGER)
 	async def btn_commit(self, ctx: miru.ViewContext, btn: miru.Button):
@@ -260,7 +308,7 @@ async def _mass_ban_impl(
 		description += f", of which **`{len(members_to_ban)!r}`** are members of the server and will be banned:"
 		description += "\n" + ", ".join(member.mention for member in members_to_ban)
 	else:
-		description += " (No server members will be banned, only users that are not currently here)."
+		description += "\n(No server members will be banned, only users that are not currently here)."
 
 	PREVIEW_MAX_LENGTH = 3
 	preview_slice = bans[:PREVIEW_MAX_LENGTH]
@@ -392,6 +440,33 @@ Failed to parse csv file. Make sure your data is a **headerless**, 2-column csv 
 
 
 if testmode():
+
+	@slash_subgroup.include
+	@arc.slash_subcommand("unban-everyone", "Unban everyone in the server (for testing purposes only!!).")
+	async def subcmd_admin__mass_ban__unban_everyone(ctx: arc.GatewayContext):
+		if ctx.guild_id is None:
+			await ctx.respond(
+				f"{S.EMOJI_ERR} This command can only be used in a guild.",
+				flags=hikari.MessageFlag.EPHEMERAL,
+			)
+			return
+
+		await ctx.defer(flags=hikari.MessageFlag.EPHEMERAL)
+
+		bans = await ctx.client.app.rest.fetch_bans(ctx.guild_id)
+		ii = len(bans)
+
+		await ctx.respond(
+			f"{S.EMOJI_WARN} Unbanning everyone in the server, total bans: `{ii}`. This may take a while...",
+		)
+
+		for i, ban in enumerate(bans):
+			logger.debug("%0*d/%d Unbanning user %r", len(str(ii)), i, ii, ban.user.id)
+			await ctx.client.app.rest.unban_user(ctx.guild_id, ban.user.id)
+
+		await ctx.edit_initial_response(
+			f"{S.EMOJI_OK} Unbanned everyone in the server. Total unbanned: `{ii}`",
+		)
 
 	@slash_subgroup.include
 	@arc.slash_subcommand("on-test-data", "Perform the mass ban impl on some test data.")

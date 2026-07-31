@@ -55,7 +55,7 @@ class TimeoutDisableItemsViewMixin(BoundOnlyViewMixin):
 
 @BOT.listen(hikari.StoppingEvent)
 async def _on_stopping(event: hikari.StoppingEvent) -> None:
-	if len_cleanup_on_shutdown := len(_cleanup_on_shutdown) == 0:
+	if len_cleanup_on_shutdown := len(_cleanup_on_shutdown) != 0:
 		logger.info("cleaning up %d `miru.View`s", len_cleanup_on_shutdown)
 
 	for view in _cleanup_on_shutdown:  # don't `asyncio.gather` as this will stress the network (and possibly 429)

@@ -1,7 +1,8 @@
 import hikari
 
+from ...environment import testmode
 from ...get_logger import get_logger
-from ..bot import BOT, testmode
+from ..bot import BOT
 
 logger = get_logger(__name__)
 
