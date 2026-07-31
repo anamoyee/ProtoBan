@@ -4,6 +4,11 @@ Automatically ban discord users when they leave the server.
 
 ## Todo
 - [ ] Fix the issue with socket disconnecting after you leave the bot running for a while, that results in a big fat error (see `log_61.log`)
+- [ ] Kick after X days of inactivity
+  - [ ] Setting: how many days of inactivity
+  - [ ] Setting: Exchange the kick for a ban
+  - [ ] Who to exempt (which permissions - setting, in a mutli-select selectmenu if enough space, maybe multiple if not enoguh space)
+  - [ ] Who to exempt (which roles - setting, in a multi-select select menu if enough space)
 
 ## Installation & Usage
 1. Install source code via git: `git clone <repo url>`, if you wish to make changes in the future, fork this repository.
