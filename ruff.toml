@@ -67,8 +67,6 @@ pydocstyle.convention = "google"
 flake8-annotations.suppress-dummy-args     = true
 flake8-annotations.suppress-none-returning = true
 
-extend-per-file-ignores = { "tests/**/*.py" = ["ANN"], "test*.py" = ["ANN"] } # don't require annotations for tests
-
 select = [
 	# commented-out code
 	#"ERA001",
@@ -607,3 +605,8 @@ ignore = [
 # 	"B026", # Star-arg unpacking after a keyword argument is strongly discouraged
 # 	"FURB142", # Use of `set.add()` in a for loop
 # ]
+
+[lint.extend-per-file-ignores]
+# don't require annotations for tests
+"tests/**/*.py" = ["ANN"]
+"test*.py"      = ["ANN"]

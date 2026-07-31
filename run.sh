@@ -40,4 +40,10 @@ if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 
-BOT_ENVIRONMENT="${environment}" BOT_TOKEN="${bot_token}" ./.venv/bin/python -OO ./.venv/bin/protoban "$@"
+python_args=()
+
+if [[ "${environment}" != "dev" ]]; then
+	python_args+=("-OO")
+fi
+
+BOT_ENVIRONMENT="${environment}" BOT_TOKEN="${bot_token}" ./.venv/bin/python "${python_args[@]}" ./.venv/bin/protoban "$@"

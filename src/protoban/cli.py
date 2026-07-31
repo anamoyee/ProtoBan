@@ -12,6 +12,12 @@ from ._version import __version__
 from .data import Data__
 from .get_logger import get_logger
 
+CONSOLE = Console(
+	highlight=False,
+	highlighter=None,
+	tab_size=4,
+)
+
 
 def get_terminal_width() -> int:
 	"""Get the width of the terminal, if terminal not found, return 100.
@@ -70,11 +76,7 @@ def setup_logging_to_stdout_rich() -> None:
 		datefmt="[%H:%M:%S]",
 		handlers=[
 			RichHandlerForceNoHighlight(
-				console=Console(
-					highlight=False,
-					highlighter=None,
-					tab_size=4,
-				),
+				console=CONSOLE,
 				rich_tracebacks=True,
 				tracebacks_show_locals=False,
 				markup=True,
@@ -120,6 +122,7 @@ def __root__(
 
 	rich_traceback_install(
 		width=get_terminal_width(),
+		console=CONSOLE,
 	)
 
 	if os.environ.get("BOT_TOKEN", None) is None:
