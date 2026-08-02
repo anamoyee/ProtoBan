@@ -4,6 +4,7 @@ Automatically ban discord users when they leave the server.
 
 ## Todo
 - [ ] Fix the issue with socket disconnecting after you leave the bot running for a while, that results in a big fat error (see `log_61.log`)
+- [ ] Add `pre-commit` which will SHOW (But not fail the commit) if `ty` or `ruff` yell - this is there to not miss any todo comments or other ruff improvements
 - [ ] Kick after X days of inactivity
   - [ ] Setting: how many days of inactivity
   - [ ] Setting: Exchange the kick for a ban
