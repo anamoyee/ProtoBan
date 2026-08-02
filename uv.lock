@@ -378,6 +378,19 @@ wheels = [
 ]
 
 [[package]]
+name = "hikari-toolbox"
+version = "0.1.7"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "hikari" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f2/77/f475f9df34154d52eb59eacc5ffdff6d3857d65dbe2c87f8512e2c46684c/hikari_toolbox-0.1.7.tar.gz", hash = "sha256:ecf092777bd2f4f2d559d77415293b8a2a9005b0c572a58cc7d238130eb67ef6", size = 10504, upload-time = "2024-10-09T08:11:43.231Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bd/c1/f05a8e3f5656061ad5c91cdfed4657aa2da6a82838726b719c8cd365b991/hikari_toolbox-0.1.7-py3-none-any.whl", hash = "sha256:49888f0e169c449729e8a09bf3b4ba410bc91d61dcbe08b45e53faf77e329ded", size = 15717, upload-time = "2024-10-09T08:11:42.284Z" },
+]
+
+[[package]]
 name = "idna"
 version = "3.18"
 source = { registry = "https://pypi.org/simple" }
@@ -604,6 +617,7 @@ dependencies = [
     { name = "hikari", extra = ["speedups"] },
     { name = "hikari-arc" },
     { name = "hikari-miru" },
+    { name = "hikari-toolbox" },
     { name = "nya-codeblock" },
     { name = "nya-fmt" },
     { name = "nya-scope" },
@@ -626,6 +640,7 @@ requires-dist = [
     { name = "hikari", extras = ["speedups"], specifier = "==2.5.0" },
     { name = "hikari-arc", specifier = "==2.3.0" },
     { name = "hikari-miru", specifier = "==4.2.0" },
+    { name = "hikari-toolbox", specifier = ">=0.1.7" },
     { name = "nya-codeblock", specifier = "==0.1.2" },
     { name = "nya-fmt", specifier = "==0.1.1" },
     { name = "nya-scope", specifier = "==0.3.1" },
