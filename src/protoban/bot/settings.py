@@ -9,3 +9,8 @@ class S(_Scope):
 	EMOJI_WARN: str = "⚠️"
 
 	TZ = dt.datetime.now().astimezone().tzinfo  # get the local timezone of the system running the bot
+
+	@classmethod
+	def tz_now(cls) -> dt.datetime:
+		"""Return `dt.datetime.now(tz=S.TZ)`."""
+		return dt.datetime.now(tz=cls.TZ)
