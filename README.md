@@ -36,7 +36,7 @@ by default `dev` environment is used
 > `"- Testmode"` markers and a few developer-oriented features (which probably
 > shouldn't be visible to a user) will be enabled in dev mode, for production
 > use `prod` mode
-<!--  -->
+>
 > **`./run.sh prod`**
 
 select environment with the first positional argument
